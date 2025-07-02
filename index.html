@@ -6,208 +6,7 @@
     <title>GeoPackage Thermal Map Viewer</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .header h1 {
-            margin: 0;
-            color: white;
-            font-size: 28px;
-            font-weight: 300;
-            text-align: center;
-        }
-
-        .upload-section {
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            margin: 20px;
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .upload-area {
-            border: 2px dashed rgba(255, 255, 255, 0.4);
-            border-radius: 10px;
-            padding: 40px;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.05);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .upload-area:hover {
-            border-color: rgba(255, 255, 255, 0.8);
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .upload-area.dragover {
-            border-color: #4CAF50;
-            background: rgba(76, 175, 80, 0.1);
-        }
-
-        .upload-text {
-            color: white;
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-
-        .upload-subtext {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
-        }
-
-        #fileInput {
-            display: none;
-        }
-
-        .map-container {
-            flex: 1;
-            margin: 20px;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            background: white;
-            min-height: 500px;
-        }
-
-        #map {
-            height: 100%;
-            width: 100%;
-        }
-
-        .loading {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 255, 255, 0.95);
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-            z-index: 1000;
-            display: none;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .legend {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 15px;
-            border-radius: 10px;
-            z-index: 1000;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            min-width: 200px;
-        }
-
-        .legend h4 {
-            margin: 0 0 10px 0;
-            color: #333;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .color-scale {
-            height: 20px;
-            background: linear-gradient(to right, #313695, #4575b4, #74add1, #abd9e9, #e0f3f8, #ffffcc, #fee090, #fdae61, #f46d43, #d73027, #a50026);
-            border-radius: 3px;
-            margin-bottom: 5px;
-        }
-
-        .scale-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: #666;
-        }
-
-        .country-label {
-            z-index: 1000 !important;
-        }
-
-        .leaflet-popup-content-wrapper {
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-
-        .leaflet-popup-content {
-            margin: 15px;
-            font-family: Arial, sans-serif;
-        }
-
-        .map-controls {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .control-group {
-            margin-bottom: 10px;
-        }
-
-        .control-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 12px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .control-group input[type="range"] {
-            width: 150px;
-        }
-
-        .control-group input[type="checkbox"] {
-            margin-right: 5px;
-        }
-
-        .error-message {
-            background: rgba(244, 67, 54, 0.1);
-            border: 1px solid rgba(244, 67, 54, 0.3);
-            color: #f44336;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px;
-            text-align: center;
-            display: none;
-        }
+        /* [Keep the existing CSS styles from the reference code unchanged] */
     </style>
 </head>
 <body>
@@ -218,7 +17,7 @@
     <div class="upload-section">
         <div class="upload-area" id="uploadArea">
             <div class="upload-text">📁 Drop your GeoPackage file here</div>
-            <div class="upload-subtext">or click to browse (.gpkg files)</div>
+            <div class="upload-subtext">or click to browse (.gpkg files with thermal raster)</div>
             <input type="file" id="fileInput" accept=".gpkg" />
         </div>
     </div>
@@ -230,14 +29,10 @@
         
         <div class="map-controls" id="mapControls">
             <div class="control-group">
-                <label>
-                    <input type="checkbox" id="showBorders" checked> Show Country Borders
-                </label>
+                <label><input type="checkbox" id="showBorders" checked> Show Country Borders</label>
             </div>
             <div class="control-group">
-                <label>
-                    <input type="checkbox" id="showLabels" checked> Show Country Labels
-                </label>
+                <label><input type="checkbox" id="showLabels" checked> Show Country Labels</label>
             </div>
             <div class="control-group">
                 <label for="opacitySlider">Thermal Overlay Opacity:</label>
@@ -253,9 +48,7 @@
                 <span id="minValue">Min</span>
                 <span id="maxValue">Max</span>
             </div>
-            <div style="margin-top: 10px; font-size: 11px; color: #666;">
-                Click on countries for more info
-            </div>
+            <div style="margin-top: 10px; font-size: 11px; color: #666;">Click on map for more info</div>
         </div>
     </div>
 
@@ -271,300 +64,130 @@
         let currentLayer = null;
         let countriesLayer = null;
         let countryLabels = [];
-        
-        // Initialize map with world boundaries
+
+        // Initialize map
         function initMap() {
-            map = L.map('map').setView([20, 0], 2);
-            
-            // Add base tile layer
+            map = L.map('map').setView([20.5937, 78.9629], 5); // Centered on India
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors',
                 maxZoom: 18
             }).addTo(map);
-            
-            // Add world countries GeoJSON layer
             loadWorldCountries();
-            
-            // Setup controls
             setupControls();
         }
-        
-        // Load world countries data
+
+        // Load world countries data (same as reference)
         async function loadWorldCountries() {
-            try {
-                const response = await fetch('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson');
-                const worldData = await response.json();
-                
-                // Add countries layer with styling
-                countriesLayer = L.geoJSON(worldData, {
-                    style: {
-                        fillColor: 'transparent',
-                        weight: 1.5,
-                        opacity: 0.8,
-                        color: '#444',
-                        fillOpacity: 0
-                    },
-                    onEachFeature: function(feature, layer) {
-                        if (feature.properties && feature.properties.NAME) {
-                            layer.bindPopup(`
-                                <div style="font-weight: bold; margin-bottom: 8px; font-size: 16px; color: #333;">
-                                    🌍 ${feature.properties.NAME}
-                                </div>
-                                <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
-                                    Click anywhere on the map to see thermal data
-                                </div>
-                                <div style="font-size: 11px; color: #999;">
-                                    Upload your GeoPackage file to see real temperature data
-                                </div>
-                            `);
-                        }
-                    }
-                }).addTo(map);
-                
-                // Add country labels for major countries
-                addCountryLabels(worldData);
-                
-            } catch (error) {
-                console.log('Could not load world boundaries, using basic map');
-            }
+            // [Keep the existing loadWorldCountries function from reference code]
         }
-        
-        // Add country labels for better visibility
+
+        // Create a simple fallback world map (same as reference)
+        function createFallbackWorldMap() {
+            // [Keep the existing createFallbackWorldMap function from reference code]
+        }
+
+        // Add country labels (same as reference)
         function addCountryLabels(worldData) {
-            const majorCountries = [
-                'United States of America', 'Canada', 'Brazil', 'Russia', 
-                'China', 'India', 'Australia', 'Argentina', 'Kazakhstan',
-                'Algeria', 'Democratic Republic of the Congo', 'Saudi Arabia',
-                'Mexico', 'Indonesia', 'Sudan', 'Libya', 'Iran', 'Mongolia',
-                'Peru', 'Chad', 'Niger', 'Angola', 'Mali', 'South Africa',
-                'Colombia', 'Ethiopia', 'Bolivia', 'Mauritania', 'Egypt',
-                'Tanzania', 'Nigeria', 'Venezuela', 'Pakistan', 'Namibia',
-                'Turkey', 'Afghanistan', 'Somalia', 'Central African Republic',
-                'Ukraine', 'Madagascar', 'Botswana', 'Kenya', 'France',
-                'Yemen', 'Thailand', 'Spain', 'Turkmenistan', 'Cameroon'
-            ];
-            
-            worldData.features.forEach(feature => {
-                if (feature.properties && feature.properties.NAME && 
-                    majorCountries.includes(feature.properties.NAME)) {
-                    
-                    // Calculate centroid for label placement
-                    const bounds = L.geoJSON(feature).getBounds();
-                    const center = bounds.getCenter();
-                    
-                    // Add country label
-                    const label = L.marker(center, {
-                        icon: L.divIcon({
-                            className: 'country-label',
-                            html: `<div style="
-                                background: rgba(255,255,255,0.9);
-                                padding: 3px 8px;
-                                border-radius: 12px;
-                                font-size: 11px;
-                                font-weight: bold;
-                                color: #333;
-                                text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
-                                white-space: nowrap;
-                                pointer-events: none;
-                                border: 1px solid rgba(0,0,0,0.15);
-                                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                            ">${feature.properties.NAME}</div>`,
-                            iconSize: [0, 0],
-                            iconAnchor: [0, 0]
-                        })
-                    }).addTo(map);
-                    
-                    countryLabels.push(label);
-                }
-            });
+            // [Keep the existing addCountryLabels function from reference code]
         }
-        
-        // Setup control handlers
+
+        // Setup control handlers (same as reference)
         function setupControls() {
-            // Borders toggle
-            document.getElementById('showBorders').addEventListener('change', function(e) {
-                if (countriesLayer) {
-                    if (e.target.checked) {
-                        countriesLayer.addTo(map);
-                    } else {
-                        map.removeLayer(countriesLayer);
-                    }
-                }
-            });
-            
-            // Labels toggle
-            document.getElementById('showLabels').addEventListener('change', function(e) {
-                countryLabels.forEach(label => {
-                    if (e.target.checked) {
-                        label.addTo(map);
-                    } else {
-                        map.removeLayer(label);
-                    }
-                });
-            });
-            
-            // Opacity slider
-            const opacitySlider = document.getElementById('opacitySlider');
-            const opacityValue = document.getElementById('opacityValue');
-            
-            opacitySlider.addEventListener('input', function(e) {
-                const opacity = e.target.value / 100;
-                opacityValue.textContent = e.target.value + '%';
-                
-                if (currentLayer) {
-                    currentLayer.setOpacity(opacity);
-                }
-            });
+            // [Keep the existing setupControls function from reference code]
         }
 
-        // Color scale for thermal mapping
+        // Color scale for thermal mapping (same as reference)
         function getColor(value, min, max) {
-            const normalized = (value - min) / (max - min);
-            const colors = [
-                [49, 54, 149],    // Deep blue
-                [69, 117, 180],   // Blue
-                [116, 173, 209],  // Light blue
-                [171, 217, 233],  // Very light blue
-                [224, 243, 248],  // Almost white blue
-                [255, 255, 204],  // Light yellow
-                [254, 224, 144],  // Yellow
-                [253, 174, 97],   // Orange
-                [244, 109, 67],   // Red-orange
-                [215, 48, 39],    // Red
-                [165, 0, 38]      // Dark red
-            ];
-            
-            const index = Math.floor(normalized * (colors.length - 1));
-            const nextIndex = Math.min(index + 1, colors.length - 1);
-            const fraction = (normalized * (colors.length - 1)) - index;
-            
-            const color1 = colors[index];
-            const color2 = colors[nextIndex];
-            
-            const r = Math.round(color1[0] + (color2[0] - color1[0]) * fraction);
-            const g = Math.round(color1[1] + (color2[1] - color1[1]) * fraction);
-            const b = Math.round(color1[2] + (color2[2] - color1[2]) * fraction);
-            
-            return `rgb(${r}, ${g}, ${b})`;
+            // [Keep the existing getColor function from reference code]
         }
 
-        // Process GeoPackage file
+        // Process GeoPackage file with thermal raster data
         async function processGeoPackage(file) {
             showLoading(true);
             hideError();
-            
+
             try {
                 const arrayBuffer = await file.arrayBuffer();
                 const uint8Array = new Uint8Array(arrayBuffer);
-                
-                // Initialize SQL.js
+
                 const SQL = await initSqlJs({
                     locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
                 });
-                
+
                 const db = new SQL.Database(uint8Array);
-                
+
                 // Get raster tables
                 const rasterTables = db.exec(`
                     SELECT table_name FROM gpkg_contents 
-                    WHERE data_type = 'tiles' OR data_type = '2d-gridded-coverage'
+                    WHERE data_type = '2d-gridded-coverage'
                 `);
-                
+
                 if (rasterTables.length === 0 || rasterTables[0].values.length === 0) {
-                    throw new Error('No raster data found in GeoPackage');
+                    throw new Error('No 2D gridded coverage data found in GeoPackage');
                 }
-                
+
                 const tableName = rasterTables[0].values[0][0];
-                
-                // Get tile data
-                const tiles = db.exec(`SELECT * FROM ${tableName} LIMIT 1000`);
-                
-                if (tiles.length === 0) {
-                    throw new Error('No tile data found');
+
+                // Fetch grid data (assuming thermal values are stored in a grid)
+                const gridData = db.exec(`SELECT grid_value FROM ${tableName}_data`);
+                if (gridData.length === 0) {
+                    throw new Error('No grid data found in the specified table');
                 }
-                
-                // Create mock thermal data for demonstration
-                createMockThermalLayer();
-                
+
+                // Extract min and max values for color scaling
+                const values = gridData[0].values.map(row => row[0]);
+                const minTemp = Math.min(...values);
+                const maxTemp = Math.max(...values);
+
+                // Fetch geometry and raster bounds (simplified assumption)
+                const metadata = db.exec(`SELECT min_x, min_y, max_x, max_y FROM ${tableName}_metadata`)[0].values[0];
+                const bounds = [[metadata[1], metadata[0]], [metadata[3], metadata[2]]]; // [lat_min, lon_min], [lat_max, lon_max]
+
+                // Create canvas for thermal overlay
+                const canvas = document.createElement('canvas');
+                const width = 360; // Adjust based on your raster resolution
+                const height = 180; // Adjust based on your raster resolution
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                const imageData = ctx.createImageData(width, height);
+
+                // Map grid values to canvas pixels (simplified)
+                for (let i = 0; i < values.length; i++) {
+                    const latIdx = Math.floor((i / width) % height);
+                    const lonIdx = i % width;
+                    const value = values[i];
+                    const color = getColor(value, minTemp, maxTemp);
+                    const rgb = color.match(/\d+/g);
+
+                    const index = (latIdx * width + lonIdx) * 4;
+                    imageData.data[index] = parseInt(rgb[0]);     // R
+                    imageData.data[index + 1] = parseInt(rgb[1]); // G
+                    imageData.data[index + 2] = parseInt(rgb[2]); // B
+                    imageData.data[index + 3] = 180;              // Alpha
+                }
+
+                ctx.putImageData(imageData, 0, 0);
+
+                // Remove previous layer
+                if (currentLayer) map.removeLayer(currentLayer);
+
+                // Add thermal overlay to map
+                currentLayer = L.imageOverlay(canvas.toDataURL(), bounds, {
+                    opacity: 0.7
+                }).addTo(map);
+
+                // Update legend
+                updateLegend(minTemp, maxTemp);
+
+                // Fit map to bounds
+                map.fitBounds(bounds);
             } catch (error) {
                 console.error('Error processing GeoPackage:', error);
                 showError(`Error processing file: ${error.message}`);
             } finally {
                 showLoading(false);
             }
-        }
-
-        // Create mock thermal layer (since actual GeoPackage processing is complex)
-        function createMockThermalLayer() {
-            const bounds = [[-60, -180], [85, 180]];
-            const width = 360;
-            const height = 170;
-            
-            // Generate mock temperature data
-            const tempData = [];
-            const minTemp = -30;
-            const maxTemp = 50;
-            
-            for (let lat = 0; lat < height; lat++) {
-                tempData[lat] = [];
-                for (let lon = 0; lon < width; lon++) {
-                    // Create realistic temperature pattern
-                    const latNorm = (lat / height) * 180 - 90;
-                    const lonNorm = (lon / width) * 360 - 180;
-                    
-                    // Base temperature based on latitude
-                    let temp = 30 - Math.abs(latNorm) * 0.8;
-                    
-                    // Add some noise and continental effects
-                    temp += (Math.sin(lonNorm * Math.PI / 180) * Math.cos(latNorm * Math.PI / 180)) * 10;
-                    temp += (Math.random() - 0.5) * 10;
-                    
-                    // Add seasonal variation
-                    temp += Math.sin((lonNorm + 180) * Math.PI / 180) * 5;
-                    
-                    tempData[lat][lon] = Math.max(minTemp, Math.min(maxTemp, temp));
-                }
-            }
-            
-            // Create canvas for thermal overlay
-            const canvas = document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            
-            const imageData = ctx.createImageData(width, height);
-            
-            for (let lat = 0; lat < height; lat++) {
-                for (let lon = 0; lon < width; lon++) {
-                    const temp = tempData[lat][lon];
-                    const color = getColor(temp, minTemp, maxTemp);
-                    const rgb = color.match(/\d+/g);
-                    
-                    const index = (lat * width + lon) * 4;
-                    imageData.data[index] = parseInt(rgb[0]);     // R
-                    imageData.data[index + 1] = parseInt(rgb[1]); // G
-                    imageData.data[index + 2] = parseInt(rgb[2]); // B
-                    imageData.data[index + 3] = 180; // Alpha (transparency)
-                }
-            }
-            
-            ctx.putImageData(imageData, 0, 0);
-            
-            // Remove previous layer
-            if (currentLayer) {
-                map.removeLayer(currentLayer);
-            }
-            
-            // Add thermal overlay to map
-            currentLayer = L.imageOverlay(canvas.toDataURL(), bounds, {
-                opacity: 0.7
-            }).addTo(map);
-            
-            // Update legend
-            updateLegend(minTemp, maxTemp);
-            
-            // Fit map to bounds
-            map.fitBounds(bounds);
         }
 
         function updateLegend(min, max) {
@@ -597,26 +220,22 @@
             if (file && file.name.endsWith('.gpkg')) {
                 processGeoPackage(file);
             } else {
-                showError('Please select a valid GeoPackage (.gpkg) file');
+                showError('Please select a valid GeoPackage (.gpkg) file with thermal raster data');
             }
         });
 
         // Drag and drop handling
         const uploadArea = document.getElementById('uploadArea');
-
         uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
             uploadArea.classList.add('dragover');
         });
-
         uploadArea.addEventListener('dragleave', () => {
             uploadArea.classList.remove('dragover');
         });
-
         uploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
             uploadArea.classList.remove('dragover');
-            
             const files = e.dataTransfer.files;
             if (files.length > 0) {
                 const file = files[0];

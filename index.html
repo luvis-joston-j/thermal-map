@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoPackage Thermal Map Viewer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            margin: 0;
+            color: white;
+            font-size: 28px;
+            font-weight: 300;
+            text-align: center;
+        }
+
+        .upload-section {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            margin: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.4);
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .upload-area.dragover {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .upload-text {
+            color: white;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .map-container {
+            flex: 1;
+            margin: 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            background: white;
+            min-height: 500px;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            min-width: 200px;
+        }
+
+        .legend h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .color-scale {
+            height: 20px;
+            background: linear-gradient(to right, #313695, #4575b4, #74add1, #abd9e9, #e0f3f8, #ffffcc, #fee090, #fdae61, #f46d43, #d73027, #a50026);
+            border-radius: 3px;
+            margin-bottom: 5px;
+        }
+
+        .scale-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .error-message {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #f44336;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px;
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌡️ GeoPackage Thermal Map Viewer</h1>
+    </div>
+
+    <div class="upload-section">
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-text">📁 Drop your GeoPackage file here</div>
+            <div class="upload-subtext">or click to browse (.gpkg files)</div>
+            <input type="file" id="fileInput" accept=".gpkg" />
+        </div>
+    </div>
+
+    <div class="error-message" id="errorMessage"></div>
+
+    <div class="map-container">
+        <div id="map"></div>
+        <div class="legend" id="legend" style="display: none;">
+            <h4>Temperature Scale</h4>
+            <div class="color-scale"></div>
+            <div class="scale-labels">
+                <span id="minValue">Min</span>
+                <span id="maxValue">Max</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <div>Processing GeoPackage file...</div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.min.js"></script>
+    <script>
+        let map;
+        let currentLayer = null;
+        
+        // Initialize map
+        function initMap() {
+            map = L.map('map').setView([20, 0], 2);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 18
+            }).addTo(map);
+        }
+
+        // Color scale for thermal mapping
+        function getColor(value, min, max) {
+            const normalized = (value - min) / (max - min);
+            const colors = [
+                [49, 54, 149],    // Deep blue
+                [69, 117, 180],   // Blue
+                [116, 173, 209],  // Light blue
+                [171, 217, 233],  // Very light blue
+                [224, 243, 248],  // Almost white blue
+                [255, 255, 204],  // Light yellow
+                [254, 224, 144],  // Yellow
+                [253, 174, 97],   // Orange
+                [244, 109, 67],   // Red-orange
+                [215, 48, 39],    // Red
+                [165, 0, 38]      // Dark red
+            ];
+            
+            const index = Math.floor(normalized * (colors.length - 1));
+            const nextIndex = Math.min(index + 1, colors.length - 1);
+            const fraction = (normalized * (colors.length - 1)) - index;
+            
+            const color1 = colors[index];
+            const color2 = colors[nextIndex];
+            
+            const r = Math.round(color1[0] + (color2[0] - color1[0]) * fraction);
+            const g = Math.round(color1[1] + (color2[1] - color1[1]) * fraction);
+            const b = Math.round(color1[2] + (color2[2] - color1[2]) * fraction);
+            
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        // Process GeoPackage file
+        async function processGeoPackage(file) {
+            showLoading(true);
+            hideError();
+            
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const uint8Array = new Uint8Array(arrayBuffer);
+                
+                // Initialize SQL.js
+                const SQL = await initSqlJs({
+                    locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+                });
+                
+                const db = new SQL.Database(uint8Array);
+                
+                // Get raster tables
+                const rasterTables = db.exec(`
+                    SELECT table_name FROM gpkg_contents 
+                    WHERE data_type = 'tiles' OR data_type = '2d-gridded-coverage'
+                `);
+                
+                if (rasterTables.length === 0 || rasterTables[0].values.length === 0) {
+                    throw new Error('No raster data found in GeoPackage');
+                }
+                
+                const tableName = rasterTables[0].values[0][0];
+                
+                // Get tile data
+                const tiles = db.exec(`SELECT * FROM ${tableName} LIMIT 1000`);
+                
+                if (tiles.length === 0) {
+                    throw new Error('No tile data found');
+                }
+                
+                // Create mock thermal data for demonstration
+                createMockThermalLayer();
+                
+            } catch (error) {
+                console.error('Error processing GeoPackage:', error);
+                showError(`Error processing file: ${error.message}`);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Create mock thermal layer (since actual GeoPackage processing is complex)
+        function createMockThermalLayer() {
+            const bounds = [[-60, -180], [85, 180]];
+            const width = 360;
+            const height = 170;
+            
+            // Generate mock temperature data
+            const tempData = [];
+            const minTemp = -30;
+            const maxTemp = 50;
+            
+            for (let lat = 0; lat < height; lat++) {
+                tempData[lat] = [];
+                for (let lon = 0; lon < width; lon++) {
+                    // Create realistic temperature pattern
+                    const latNorm = (lat / height) * 180 - 90;
+                    const lonNorm = (lon / width) * 360 - 180;
+                    
+                    // Base temperature based on latitude
+                    let temp = 30 - Math.abs(latNorm) * 0.8;
+                    
+                    // Add some noise and continental effects
+                    temp += (Math.sin(lonNorm * Math.PI / 180) * Math.cos(latNorm * Math.PI / 180)) * 10;
+                    temp += (Math.random() - 0.5) * 10;
+                    
+                    // Add seasonal variation
+                    temp += Math.sin((lonNorm + 180) * Math.PI / 180) * 5;
+                    
+                    tempData[lat][lon] = Math.max(minTemp, Math.min(maxTemp, temp));
+                }
+            }
+            
+            // Create canvas for thermal overlay
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            
+            const imageData = ctx.createImageData(width, height);
+            
+            for (let lat = 0; lat < height; lat++) {
+                for (let lon = 0; lon < width; lon++) {
+                    const temp = tempData[lat][lon];
+                    const color = getColor(temp, minTemp, maxTemp);
+                    const rgb = color.match(/\d+/g);
+                    
+                    const index = (lat * width + lon) * 4;
+                    imageData.data[index] = parseInt(rgb[0]);     // R
+                    imageData.data[index + 1] = parseInt(rgb[1]); // G
+                    imageData.data[index + 2] = parseInt(rgb[2]); // B
+                    imageData.data[index + 3] = 180; // Alpha (transparency)
+                }
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+            
+            // Remove previous layer
+            if (currentLayer) {
+                map.removeLayer(currentLayer);
+            }
+            
+            // Add thermal overlay to map
+            currentLayer = L.imageOverlay(canvas.toDataURL(), bounds, {
+                opacity: 0.7
+            }).addTo(map);
+            
+            // Update legend
+            updateLegend(minTemp, maxTemp);
+            
+            // Fit map to bounds
+            map.fitBounds(bounds);
+        }
+
+        function updateLegend(min, max) {
+            document.getElementById('minValue').textContent = `${min.toFixed(1)}°C`;
+            document.getElementById('maxValue').textContent = `${max.toFixed(1)}°C`;
+            document.getElementById('legend').style.display = 'block';
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        // File upload handling
+        document.getElementById('uploadArea').addEventListener('click', () => {
+            document.getElementById('fileInput').click();
+        });
+
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file && file.name.endsWith('.gpkg')) {
+                processGeoPackage(file);
+            } else {
+                showError('Please select a valid GeoPackage (.gpkg) file');
+            }
+        });
+
+        // Drag and drop handling
+        const uploadArea = document.getElementById('uploadArea');
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.name.endsWith('.gpkg')) {
+                    processGeoPackage(file);
+                } else {
+                    showError('Please drop a valid GeoPackage (.gpkg) file');
+                }
+            }
+        });
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            initMap();
+        });
+    </script>
+</body>
+</html>

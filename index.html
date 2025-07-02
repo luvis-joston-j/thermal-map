@@ -153,6 +153,51 @@
             color: #666;
         }
 
+        .country-label {
+            z-index: 1000 !important;
+        }
+
+        .leaflet-popup-content-wrapper {
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .leaflet-popup-content {
+            margin: 15px;
+            font-family: Arial, sans-serif;
+        }
+
+        .map-controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-group {
+            margin-bottom: 10px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .control-group input[type="range"] {
+            width: 150px;
+        }
+
+        .control-group input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
         .error-message {
             background: rgba(244, 67, 54, 0.1);
             border: 1px solid rgba(244, 67, 54, 0.3);
@@ -182,12 +227,34 @@
 
     <div class="map-container">
         <div id="map"></div>
+        
+        <div class="map-controls" id="mapControls">
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="showBorders" checked> Show Country Borders
+                </label>
+            </div>
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="showLabels" checked> Show Country Labels
+                </label>
+            </div>
+            <div class="control-group">
+                <label for="opacitySlider">Thermal Overlay Opacity:</label>
+                <input type="range" id="opacitySlider" min="0" max="100" value="70">
+                <span id="opacityValue">70%</span>
+            </div>
+        </div>
+        
         <div class="legend" id="legend" style="display: none;">
-            <h4>Temperature Scale</h4>
+            <h4>🌡️ Temperature Scale</h4>
             <div class="color-scale"></div>
             <div class="scale-labels">
                 <span id="minValue">Min</span>
                 <span id="maxValue">Max</span>
+            </div>
+            <div style="margin-top: 10px; font-size: 11px; color: #666;">
+                Click on countries for more info
             </div>
         </div>
     </div>
@@ -202,15 +269,152 @@
     <script>
         let map;
         let currentLayer = null;
+        let countriesLayer = null;
+        let countryLabels = [];
         
-        // Initialize map
+        // Initialize map with world boundaries
         function initMap() {
             map = L.map('map').setView([20, 0], 2);
             
+            // Add base tile layer
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors',
                 maxZoom: 18
             }).addTo(map);
+            
+            // Add world countries GeoJSON layer
+            loadWorldCountries();
+            
+            // Setup controls
+            setupControls();
+        }
+        
+        // Load world countries data
+        async function loadWorldCountries() {
+            try {
+                const response = await fetch('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson');
+                const worldData = await response.json();
+                
+                // Add countries layer with styling
+                countriesLayer = L.geoJSON(worldData, {
+                    style: {
+                        fillColor: 'transparent',
+                        weight: 1.5,
+                        opacity: 0.8,
+                        color: '#444',
+                        fillOpacity: 0
+                    },
+                    onEachFeature: function(feature, layer) {
+                        if (feature.properties && feature.properties.NAME) {
+                            layer.bindPopup(`
+                                <div style="font-weight: bold; margin-bottom: 8px; font-size: 16px; color: #333;">
+                                    🌍 ${feature.properties.NAME}
+                                </div>
+                                <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
+                                    Click anywhere on the map to see thermal data
+                                </div>
+                                <div style="font-size: 11px; color: #999;">
+                                    Upload your GeoPackage file to see real temperature data
+                                </div>
+                            `);
+                        }
+                    }
+                }).addTo(map);
+                
+                // Add country labels for major countries
+                addCountryLabels(worldData);
+                
+            } catch (error) {
+                console.log('Could not load world boundaries, using basic map');
+            }
+        }
+        
+        // Add country labels for better visibility
+        function addCountryLabels(worldData) {
+            const majorCountries = [
+                'United States of America', 'Canada', 'Brazil', 'Russia', 
+                'China', 'India', 'Australia', 'Argentina', 'Kazakhstan',
+                'Algeria', 'Democratic Republic of the Congo', 'Saudi Arabia',
+                'Mexico', 'Indonesia', 'Sudan', 'Libya', 'Iran', 'Mongolia',
+                'Peru', 'Chad', 'Niger', 'Angola', 'Mali', 'South Africa',
+                'Colombia', 'Ethiopia', 'Bolivia', 'Mauritania', 'Egypt',
+                'Tanzania', 'Nigeria', 'Venezuela', 'Pakistan', 'Namibia',
+                'Turkey', 'Afghanistan', 'Somalia', 'Central African Republic',
+                'Ukraine', 'Madagascar', 'Botswana', 'Kenya', 'France',
+                'Yemen', 'Thailand', 'Spain', 'Turkmenistan', 'Cameroon'
+            ];
+            
+            worldData.features.forEach(feature => {
+                if (feature.properties && feature.properties.NAME && 
+                    majorCountries.includes(feature.properties.NAME)) {
+                    
+                    // Calculate centroid for label placement
+                    const bounds = L.geoJSON(feature).getBounds();
+                    const center = bounds.getCenter();
+                    
+                    // Add country label
+                    const label = L.marker(center, {
+                        icon: L.divIcon({
+                            className: 'country-label',
+                            html: `<div style="
+                                background: rgba(255,255,255,0.9);
+                                padding: 3px 8px;
+                                border-radius: 12px;
+                                font-size: 11px;
+                                font-weight: bold;
+                                color: #333;
+                                text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+                                white-space: nowrap;
+                                pointer-events: none;
+                                border: 1px solid rgba(0,0,0,0.15);
+                                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                            ">${feature.properties.NAME}</div>`,
+                            iconSize: [0, 0],
+                            iconAnchor: [0, 0]
+                        })
+                    }).addTo(map);
+                    
+                    countryLabels.push(label);
+                }
+            });
+        }
+        
+        // Setup control handlers
+        function setupControls() {
+            // Borders toggle
+            document.getElementById('showBorders').addEventListener('change', function(e) {
+                if (countriesLayer) {
+                    if (e.target.checked) {
+                        countriesLayer.addTo(map);
+                    } else {
+                        map.removeLayer(countriesLayer);
+                    }
+                }
+            });
+            
+            // Labels toggle
+            document.getElementById('showLabels').addEventListener('change', function(e) {
+                countryLabels.forEach(label => {
+                    if (e.target.checked) {
+                        label.addTo(map);
+                    } else {
+                        map.removeLayer(label);
+                    }
+                });
+            });
+            
+            // Opacity slider
+            const opacitySlider = document.getElementById('opacitySlider');
+            const opacityValue = document.getElementById('opacityValue');
+            
+            opacitySlider.addEventListener('input', function(e) {
+                const opacity = e.target.value / 100;
+                opacityValue.textContent = e.target.value + '%';
+                
+                if (currentLayer) {
+                    currentLayer.setOpacity(opacity);
+                }
+            });
         }
 
         // Color scale for thermal mapping
